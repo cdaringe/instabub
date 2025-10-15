@@ -2,8 +2,6 @@
 -- Press D-pad Up to instantly enter bubble
 -- While in bubble: D-pad Down to warp to next player
 
--- Current speed multiplier for bubble movement
-
 -- Track which player we last warped to
 local lastWarpedPlayerIndex = 0
 
