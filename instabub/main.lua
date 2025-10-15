@@ -2,17 +2,7 @@
 -- Press D-pad Up to instantly enter bubble
 -- While in bubble: D-pad Down to warp to next player
 
--- Speed change increments
-local SPEED_INCREMENT = 0.3
-local SPEED_DECREMENT = 0.3
-local MIN_SPEED_MULTIPLIER = 1.0
-local MAX_SPEED_MULTIPLIER = 1.8
-
 -- Current speed multiplier for bubble movement
-local bubbleSpeedMultiplier = MIN_SPEED_MULTIPLIER
-
--- Track previous bubble state to detect when we exit bubble
-local wasBubbled = false
 
 -- Track which player we last warped to
 local lastWarpedPlayerIndex = 0
@@ -59,23 +49,6 @@ function mario_update(m)
 
     -- Only process bubble controls if already in bubble
     if m.action == ACT_BUBBLED then
-        -- D-pad Right: increase speed multiplier
-        if (m.controller.buttonPressed & R_JPAD) ~= 0 then
-            bubbleSpeedMultiplier = bubbleSpeedMultiplier + SPEED_INCREMENT
-            if bubbleSpeedMultiplier > MAX_SPEED_MULTIPLIER then
-                bubbleSpeedMultiplier = MAX_SPEED_MULTIPLIER
-            end
-        end
-
-        -- D-pad Left: decrease speed multiplier
-        if (m.controller.buttonPressed & L_JPAD) ~= 0 then
-            bubbleSpeedMultiplier = bubbleSpeedMultiplier - SPEED_DECREMENT
-            if bubbleSpeedMultiplier < MIN_SPEED_MULTIPLIER then
-                bubbleSpeedMultiplier = MIN_SPEED_MULTIPLIER
-            end
-        end
-
-        -- D-pad Down: warp to next player
         if (m.controller.buttonPressed & D_JPAD) ~= 0 then
             local nextPlayerIndex = get_next_player()
             if nextPlayerIndex ~= nil then
@@ -89,9 +62,6 @@ function mario_update(m)
                 lastWarpedPlayerIndex = nextPlayerIndex
             end
         end
-    else
-        -- Not in bubble, reset speed multiplier
-        bubbleSpeedMultiplier = MIN_SPEED_MULTIPLIER
     end
 end
 
