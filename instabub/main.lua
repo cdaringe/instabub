@@ -1,12 +1,24 @@
 -- instabub mod for SM64CoopDX
 -- Press D-pad Up to instantly enter bubble
 -- While in bubble: D-pad Down to warp to next player
+-- Press D-pad Up rapidly 3 times to exit bubble (de-bubble)
 
 -- Track which player we last warped to
 local lastWarpedPlayerIndex = 0
 
 -- Mario's height for offset
 local MARIO_HEIGHT = 160
+
+-- Track the last 3 up d-pad press timestamps for triple-press detection
+local upPressTimestamps = {0, 0, 0}
+local TRIPLE_PRESS_WINDOW = 0.5  -- Time window in seconds for triple press
+
+-- Check if we have 3 rapid presses within the time window
+local function check_triple_press()
+    local currentTime = upPressTimestamps[3]
+    local firstTime = upPressTimestamps[1]
+    return (currentTime - firstTime) <= TRIPLE_PRESS_WINDOW
+end
 
 -- Find the next connected and alive player after lastWarpedPlayerIndex
 local function get_next_player()
@@ -38,9 +50,22 @@ function mario_update(m)
     -- Only process for local player
     if m.playerIndex ~= 0 then return end
 
-    -- Check if D-pad Up was just pressed - enter bubble
+    -- Check if D-pad Up was just pressed
     if (m.controller.buttonPressed & U_JPAD) ~= 0 then
-        if m.action ~= ACT_BUBBLED then
+        -- Get current time (frame-based timing)
+        local currentTime = get_global_timer() / 30.0  -- Convert frames to seconds (30 FPS)
+
+        -- Shift timestamps and add new press
+        upPressTimestamps[1] = upPressTimestamps[2]
+        upPressTimestamps[2] = upPressTimestamps[3]
+        upPressTimestamps[3] = currentTime
+
+        -- Check for triple press
+        if check_triple_press() and m.action == ACT_BUBBLED then
+            -- De-bubble: exit bubble state
+            set_mario_action(m, ACT_IDLE, 0)
+        elseif m.action ~= ACT_BUBBLED then
+            -- Enter bubble (only if not already bubbled)
             set_mario_action(m, ACT_BUBBLED, 0)
         end
     end
